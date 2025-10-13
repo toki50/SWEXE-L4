@@ -1,1 +1,4 @@
 ログイン中です
+<% if session[:login_uid].present? %>
+  <%= link_to "ログアウト", top_logout_path %>
+<% end %>
