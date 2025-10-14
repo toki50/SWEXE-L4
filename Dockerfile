@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1
-# check=error=true
 
+# -------------------------------
+# Base stage
+# -------------------------------
 ARG RUBY_VERSION=3.2.2
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
@@ -12,16 +14,21 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Set production environment
-ENV RAILS_ENV="production" \
-    BUNDLE_DEPLOYMENT="1" \
-    BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development"
+ENV RAILS_ENV=production \
+    BUNDLE_DEPLOYMENT=1 \
+    BUNDLE_PATH=/usr/local/bundle \
+    BUNDLE_WITHOUT=development
 
-# Accept build arg for SECRET_KEY_BASE
+# Accept build argument for SECRET_KEY_BASE
 ARG SECRET_KEY_BASE
-ENV SECRET_KEY_BASE=${SECRET_KEY_BASE:-dummysecretkey123456}  # 16 bytes dummy key
 
+# -------------------------------
+# Build stage
+# -------------------------------
 FROM base AS build
+
+# Set ENV inside build stage (use dummy if not provided)
+ENV SECRET_KEY_BASE=${SECRET_KEY_BASE:-dummysecretkey123456}
 
 # Install build dependencies
 RUN apt-get update -qq && \
@@ -40,9 +47,12 @@ COPY . .
 # Precompile bootsnap
 RUN bundle exec bootsnap precompile app/ lib/
 
-# Precompile assets using SECRET_KEY_BASE (dummy if not provided)
+# Precompile assets
 RUN ./bin/rails assets:precompile
 
+# -------------------------------
+# Final stage
+# -------------------------------
 FROM base
 
 # Copy built artifacts
