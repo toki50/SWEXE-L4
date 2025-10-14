@@ -1,7 +1,6 @@
 # config/initializers/secret_key.rb
+key = ENV.fetch("SECRET_KEY_BASE")
+raise "SECRET_KEY_BASE must be at least 16 bytes" if key.bytesize < 16
 
-# ENV["SECRET_KEY_BASE"] が未設定の場合はエラーを出すか、ビルド用ダミーを使う
-secret = ENV["SECRET_KEY_BASE"] || "dummysecretkey123456"
-
-# AES-128 用に16バイトだけ取り出す
-AES_KEY = secret.byteslice(0, 16)
+cipher = OpenSSL::Cipher::AES.new(128, :CBC)
+cipher.key = key[0, 16]  # AES-128 の場合は最初の16バイト

@@ -19,15 +19,15 @@ ENV RAILS_ENV=production \
     BUNDLE_PATH=/usr/local/bundle \
     BUNDLE_WITHOUT=development
 
-# Accept build argument for SECRET_KEY_BASE
-ARG SECRET_KEY_BASE
-
 # -------------------------------
 # Build stage
 # -------------------------------
 FROM base AS build
 
-# Set ENV inside build stage (use dummy if not provided)
+# Accept build argument for SECRET_KEY_BASE
+ARG SECRET_KEY_BASE
+
+# Use dummy 16+ bytes key if not provided
 ENV SECRET_KEY_BASE=${SECRET_KEY_BASE:-dummysecretkey123456}
 
 # Install build dependencies
@@ -47,8 +47,8 @@ COPY . .
 # Precompile bootsnap
 RUN bundle exec bootsnap precompile app/ lib/
 
-# Precompile assets
-RUN ./bin/rails assets:precompile
+# Precompile assets with dummy key
+RUN SECRET_KEY_BASE=$SECRET_KEY_BASE ./bin/rails assets:precompile
 
 # -------------------------------
 # Final stage
