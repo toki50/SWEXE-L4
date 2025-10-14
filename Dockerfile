@@ -28,7 +28,7 @@ FROM base AS build
 ARG SECRET_KEY_BASE
 
 # Use dummy 16+ bytes key if not provided
-ENV SECRET_KEY_BASE=02f68199f99b080cbe201422521c0c62eac8c3edcfafd754b16a17df075e3e46d1510df462d2c1d3e79e18efcd6011ab39a55422d33a27741f211a2e4f7c8364
+ENV SECRET_KEY_BASE=7966ec95ab6d4cac099aa46a4a750326
 
 # Install build dependencies
 RUN apt-get update -qq && \
